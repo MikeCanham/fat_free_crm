@@ -95,7 +95,7 @@ en-GB:
             name:
               missing_account_name: ^Please specify account name.
             image_url:
-              invalid_url_length: ^Please ensure image has a maximum length of 100.
+              invalid_image_url_length: ^Please ensure image has a maximum length of 100.
               invalid_image_url_format: ^image is not a valid url.
               invalid_image_url_format_exc: ^image is not a valid url (%{value}).
               invalid_image_url_no_response: ^Unable to get response from image url.

@@ -81,6 +81,8 @@ class Contact < ActiveRecord::Base
     where( name_query.nil? ? other : name_query.or(other) )
   }
 
+  attr_accessor :virtual_attribute
+
   uses_user_permissions
   acts_as_commentable
   uses_comment_extensions

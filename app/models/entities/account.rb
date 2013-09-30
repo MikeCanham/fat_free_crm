@@ -74,6 +74,8 @@ class Account < ActiveRecord::Base
   has_ransackable_associations %w(contacts opportunities tags activities emails addresses comments tasks)
   ransack_can_autocomplete
 
+  attr_accessor :check_image_url
+
   validates_presence_of :name, :message => :missing_account_name
   validates_uniqueness_of :name, :scope => :deleted_at if Setting.require_unique_account_names
   validate :users_for_shared_access
@@ -137,27 +139,28 @@ class Account < ActiveRecord::Base
   # image_url can be nil, must not be greater than 100 characters and must have a valid uri format.
   def validate_image_url
     if self.image_url != nil && self.image_url.empty? == false
-      begin
-        # If url does not have a scheme defined then automatically add http
-        parsed = URI.parse(self.image_url)
-        if(!parsed.scheme)
-          self.image_url = "http://#{self.image_url}"
-        end
+    begin
+      # If url does not have a scheme defined then automatically add http
+      parsed = URI.parse(self.image_url)
+      if(!parsed.scheme)
+        self.image_url = "http://#{self.image_url}"
+      end
 
-        # If url is greater than 100 characters then add an error and return.
-        if self.image_url.length > 100
-          errors.add(:image_url, :invalid_image_url_length)
-          return
-        end
+      # If url is greater than 100 characters then add an error and return.
+      if self.image_url.length > 100
+        errors.add(:image_url, :invalid_image_url_length)
+        return
+      end
 
-        # Re-parse the url and check that it has http or https if not add error and return
-        parsed = URI.parse(self.image_url)
-        if %w(http https).include?(parsed.scheme) == false
-          errors.add(:image_url, :invalid_image_url_format)
-          return
-        end
+      # Re-parse the url and check that it has http or https if not add error and return
+      parsed = URI.parse(self.image_url)
+      if %w(http https).include?(parsed.scheme) == false
+        errors.add(:image_url, :invalid_image_url_format)
+        return
+      end
 
-        # Check that the url exists .... note this might be undesirable if a server is down.
+      # Check that the url exists id the check_image_url is set to true.
+      if self.check_image_url == '1'
         begin
           # generate request
           uri = URI(self.image_url)
@@ -173,7 +176,7 @@ class Account < ActiveRecord::Base
           errors.add(:image_url, :invalid_image_url_no_response)
           return
         end
-
+      end
       rescue Exception => exc
         errors.add(:image_url, :invalid_image_url_format_exc, :value => exc.message)
       end
