@@ -74,6 +74,9 @@ class Account < ActiveRecord::Base
   has_ransackable_associations %w(contacts opportunities tags activities emails addresses comments tasks)
   ransack_can_autocomplete
 
+  # check_image_url is not saved to the database. It is a temporary variable to indicate
+  # if the image_url should be validated across the network when the accounts data is saved.
+  # It is valid to turn the check off if the host is down etc.
   attr_accessor :check_image_url
 
   validates_presence_of :name, :message => :missing_account_name
